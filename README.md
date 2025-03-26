@@ -3,21 +3,25 @@ Observation Output Verification
 
 Tools to compare 2 different versions
 
-USAGE: 
+Install required packages (if not already installed):
 
-module load python
-
-in case you do not have some packages installed, use pip command (you need tabulate, matplotlib, panda) 
+You will need the following packages: tabulate, matplotlib, and pandas.
 pip install <package>
 
-Networks: gdas, gfs, cdas, nam, rap, rap_e, rap_p, urma, rtma 
+Supported eetworks: gdas, gfs, cdas, nam, rap, rap_e, rap_p, urma, rtma 
 
-Before you run comparison script, set path 
+Before running comparison scripts, set the paths for: 
 BASE_COMROOT
 BASE_SMTP
 
-Compare 2 directories, list differences , count bufr_d, *nr, status files
-python comp2dir.sh <network> <yyymmdd>
+Available Comparison Scripts
 
-Compare 2 prepbufr files
-python comp2prepb.sh <network> <yyymmdd>
+1. Compare Two Directories:
+Lists differences and counts of bufr_d, *nr, and status files.
+
+python comp2dir.sh <network> <yyyymmdd>
+
+2. Compare Two PREPBUFR Files:
+
+python comp2prepb.sh <network> <yyyymmdd>
+
