@@ -31,6 +31,7 @@ BASE_COMROOT = "/lfs/h1/ops/prod/com/obsproc/v1.2"
 # Ensure proper arguments
 if len(sys.argv) < 2 or len(sys.argv) > 5:
     print("Usage: python compare_prepbufr.py <network> [yyyymmdd] [HH] [TM]")
+    print("Defaut values: for date is TODAY, HH=00, and if TM is optional variable TM=00")
     sys.exit(1)
 
 today_date = datetime.today().strftime("%Y%m%d")

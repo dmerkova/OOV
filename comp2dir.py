@@ -31,6 +31,7 @@ BASE_COMROOT = "/lfs/h1/ops/prod/com/obsproc/v1.2"
 # Ensure the script receives correct arguments
 if len(sys.argv) < 2 or len(sys.argv) > 4:
     print("Usage: python compare_dirs.py <network> [yyyymmdd] [HH]")
+    print("Default values for date is TODAY and HH=00")
     sys.exit(1)
 
 today_date = datetime.today().strftime("%Y%m%d")
