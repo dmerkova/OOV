@@ -23,7 +23,7 @@ import subprocess
 from datetime import datetime
 
 ###################### NEED TO SET DIRECTORIES ###########################################
-BASE_STMP = "/lfs/h1/ops/para/com/obsproc/v1.2"
+BASE_STMP = "/lfs/h1/ops/para/com/obsproc/v1.3"
 #BASE_STMP = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/R13/com/obsproc/v1.3"
 BASE_COMROOT = "/lfs/h1/ops/prod/com/obsproc/v1.2"
 ##########################################################################################
@@ -64,11 +64,10 @@ mySTMP = f"{BASE_STMP}/{netw}.{datum}"
 myCOMROOT = f"{BASE_COMROOT}/{netw}.{datum}"
 
 if netw == 'cdas':
-    print('****  IF CDAS AND CHECKING MY TEST NEED TO UNCOMMENT FOLLOWING LINE *******')
-    print('****  due to use of PTMP directory !!!!!!                           *******')
-    #mySTMP = '/lfs/h1/ops/para/com/obsproc/v1.3/'+netw+'.'+datum+'/'+HH+'/atmos'
+    print('****  IF CDAS is tested, prepbufr file  production has 24h delay *******')
+    print('****  IF checking local test file, make sure if you need to set PTMP directory for mySTMP *****')
+    #mySTMP = '/lfs/h2/ptmp/dagmar.merkova/CRON/com/obsproc/v1.3/'+netw+'.'+datum+'/'+HH+'/atmos'
 
-    #mySTMP = f'/lfs/h1/ops/para/com/obsproc/v1.3/{netw}.{datum}'
 
 elif netw in ['gdas', 'gfs']:
     HH = "00"  # Force HH to "00" for these networks
@@ -76,9 +75,11 @@ elif netw in ['gdas', 'gfs']:
     myCOMROOT = f"{BASE_COMROOT}/{netw}.{datum}/{HH}/atmos"
 
 elif netw == 'rap_p':
-    echo "Some RAP network needs a special cycle to check prepbufr in script, put 06 or uncomment following lines"
-    # HH = "06"  # Force HH to "06" for RAP networks
+    print("Some RAP network needs a special cycle seting default value for HH")
+    #HH = "06"  # Force HH to "06" for RAP networks
     #mySTMP = f"{BASE_STMP}/{netw}.{datum}"
+else: 
+    pass
 
 # Define prepbufr file paths
 prepbufr1 = f"{mySTMP}/{netw}.t{HH}z.prepbufr" if netw in ['cdas', 'gdas', 'gfs'] else f"{mySTMP}/{netw}.t{HH}z.prepbufr.tm{TM}"
