@@ -108,8 +108,8 @@ print(f"{prepbufr1} -> {get_file_time(prepbufr1)}")
 print(f"{prepbufr2} -> {get_file_time(prepbufr2)}")
 
 # Check and compare files
-os.system(f'/u/ashley.stanfield/bin/binv {prepbufr1} > output1.csv')
-os.system(f'/u/ashley.stanfield/bin/binv {prepbufr2} > output2.csv')
+os.system(f'/apps/ops/prod/libs/intel/19.1.3.304/bufr/11.7.0/bin/binv {prepbufr1} > output1.csv')
+os.system(f'/apps/ops/prod/libs/intel/19.1.3.304/bufr/11.7.0/bin/binv {prepbufr2} > output2.csv')
 
 # Load the output CSV files
 #output1 = pd.read_csv("output1.csv", skiprows=3, delim_whitespace=True, names=['name', 'type', 'subset', 'bytes', 'val'])
