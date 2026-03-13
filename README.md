@@ -9,7 +9,7 @@ mode=exp  # comparing 2 different experiments
 mode=date # comparing 2 different dates
 
 
-USAGE: 
+USAGE: (need to load python module: module load python ) 
 python comp2dirs.py gfs --date1 20260313 --hh 00 --mode exp
 python comp2dirs.py gdas --date1 20260312 --date2 20260313 --hh 00 --mode date
 python comp2prepbs.py rap_p --date1 20260313 --hh 06 --tm 00 --mode exp
