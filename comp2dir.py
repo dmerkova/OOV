@@ -23,8 +23,9 @@ from datetime import datetime
 
 #### !! NEED TO DEFINE common base paths ##############################
 #BASE_STMP = "/lfs/h1/ops/para/com/obsproc/v1.2"
-BASE_STMP = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/R13/com/obsproc/v1.3"
-BASE_COMROOT = "/lfs/h1/ops/prod/com/obsproc/v1.2"
+BASE_STMP = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v129/com/obsproc/v1.2.9"
+BASE_COMROOT = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v127/com/obsproc/v1.3.0"
+#BASE_COMROOT = "/lfs/h1/ops/prod/com/obsproc/v1.2"
 #BASE_COMROOT = "/lfs/h2/emc/prod/com/obsproc/v1.3"
 #######################################################################
 
@@ -128,8 +129,8 @@ def compare_directories(dir1, dir2, HH_filter=None):
         print(f"Error: One or both directories do not exist. Cannot proceed.")
         sys.exit(1)
 
-    files_in_dir1 = get_files_and_sizes(dir1,HH_filter)
-    files_in_dir2 = get_files_and_sizes(dir2,HH_filter)
+    files_in_dir1 = get_files_and_sizes(dir1, HH_filter)
+    files_in_dir2 = get_files_and_sizes(dir2, HH_filter)
 
     table_data = []
     for file in files_in_dir1.keys() | files_in_dir2.keys():
@@ -156,25 +157,39 @@ def compare_directories(dir1, dir2, HH_filter=None):
         table_data.append([file, size1, size2, size_diff, rel_size_diff, status])
 
     if not table_data:
-        print(" No matching files found for the given HH. No comparison data to display.")
-        return
+        print("No matching files found for the given HH. No comparison data to display.")
+        return pd.DataFrame(columns=[
+            "File",
+            "Size in mySTMP (bytes)",
+            "Size in myCOMROOT (bytes)",
+            "Size Difference (bytes)",
+            "Relative Size Difference (%)",
+            "Status"
+        ])
 
-
-    # Sort results alphabetically by filename
     table_data.sort(key=lambda x: x[0])
 
-    # Print the comparison results
-    df = pd.DataFrame(table_data, columns=["File", "Size in mySTMP (bytes)", "Size in myCOMROOT (bytes)", 
-                                           "Size Difference (bytes)", "Relative Size Difference (%)", "Status"])
-    df.to_csv(output_csv, index=False)
-    
-    print(tabulate(table_data, 
-                        tablefmt="pretty", 
-                        colalign=("left", "right", "right", "right", "right", "left")))
+    df = pd.DataFrame(
+        table_data,
+        columns=[
+            "File",
+            "Size in mySTMP (bytes)",
+            "Size in myCOMROOT (bytes)",
+            "Size Difference (bytes)",
+            "Relative Size Difference (%)",
+            "Status"
+        ]
+    )
 
+    print(tabulate(
+        table_data,
+        tablefmt="pretty",
+        colalign=("left", "right", "right", "right", "right", "left")
+    ))
 
+    return df
 # Run the directory comparison
-compare_directories(mySTMP, myCOMROOT,HH)
+df_compare = compare_directories(mySTMP, myCOMROOT,HH)
 
 # Count file occurrences in each directory
 stmp_counts = count_files(mySTMP,netw,HH)
@@ -191,3 +206,24 @@ print(tabulate([
 ], headers=["File Type", "Count in mySTMP", "Count in myCOMROOT"], tablefmt="pretty", colalign=("left", "right", "right")))
 
 print(f"Comparing directories:\nmySTMP: {mySTMP}\nmyCOMROOT: {myCOMROOT}\n")
+
+df_compare.to_csv(output_csv, index=False)
+
+# Append directory info and counts to same CSV
+with open(output_csv, "a") as f:
+    f.write("\n")
+    f.write("Directory Info\n")
+    f.write(f"mySTMP,{mySTMP}\n")
+    f.write(f"myCOMROOT,{myCOMROOT}\n")
+    f.write("\n")
+
+# Build counts table as DataFrame
+df_counts = pd.DataFrame([
+    ["Listing Files", stmp_counts["listing"], comroot_counts["listing"]],
+    ["NR Files", stmp_counts["nr"], comroot_counts["nr"]],
+    ["BUFR_D Files", stmp_counts["bufr_d"], comroot_counts["bufr_d"]],
+    ["Prepbufr Files", stmp_counts["prepbufr"], comroot_counts["prepbufr"]],
+    ["Twin Files", stmp_counts["twin"], comroot_counts["twin"]],
+], columns=["File Type", "Count in mySTMP", "Count in myCOMROOT"])
+
+df_counts.to_csv(output_csv, mode="a", index=False)
