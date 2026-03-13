@@ -1,6 +1,8 @@
 # Ignore csv files
 *.csv
+*.log
 
 # Ignore everything in a folder
 archive/
-
+tmp/
+__pycache__/

@@ -1,3 +1,24 @@
+# UPDATE 3/13/2026
+NEW files:
+ compare_config.py  # setting base path, network specific rules 
+ compare_utils.py   # utils shared for both scripts
+ comp2dirs.py       # comparing 2 directories 
+ comp2prepbs.py     # comparing 2 prepbufr files
+
+mode=exp  # comparing 2 different experiments
+mode=date # comparing 2 different dates
+
+
+USAGE: 
+python comp2dirs.py gfs --date1 20260313 --hh 00 --mode exp
+python comp2dir.py gdas --date1 20260312 --date2 20260313 --hh 00 --mode date
+python comp2prepb.py rap_p --date1 20260313 --hh 06 --tm 00 --mode exp
+# ###################### 
+# keeping old versions as is 
+   com2dir.py
+   cop2prepb.py 
+
+
 # OOV
 Observation Output Verification tools to compare 2 different versions of obsproc runs. 
 
