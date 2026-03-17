@@ -52,7 +52,7 @@ def build_prepbufr_path(base, netw, date, hh=None, tm=None):
     return f"{cycle_dir}/{netw}.t{hh}z.prepbufr"
 
 
-def get_compare_targets(mode, date1, date2=None):
+def get_compare_targets(mode, netw, date1, date2=None):
     """
     Decide which bases/dates go on left/right side.
 
@@ -64,6 +64,11 @@ def get_compare_targets(mode, date1, date2=None):
         left  = CONFIG.test_base/date1
         right = CONFIG.test_base/date2
     """
+    rules = NETWORK_RULES.get(netw, DEFAULT_RULES)
+
+    test_base = rules.get("test_base", CONFIG.test_base)
+    baseline_base = rules.get("baseline_base", CONFIG.baseline_base)
+    
     if mode == "exp":
         left_base = CONFIG.test_base
         right_base = CONFIG.baseline_base

@@ -79,38 +79,47 @@ def get_files_and_sizes(directory, netw, hh_filter=None):
 
     return file_dict
 
-
-def count_files(directory, netw, hh_filter=None):
-    """
-    Count key file categories from top directory level.
-    """
-    counts = {"listing": 0, "nr": 0, "bufr_d": 0, "prepbufr": 0, "twin": 0}
+def count_files(directory, netw, HH_filter=None):
+    """Count occurrences of .listing, .nr, .bufr_d, prepbufr, twin, unblock, and total files."""
 
     if not os.path.exists(directory):
-        return counts
+        return {"listing": 0, "nr": 0, "bufr_d": 0, "prepbufr": 0, "twin": 0, "total": 0}
 
-    try:
-        files = os.listdir(directory)
-    except OSError:
-        return counts
+    file_counts = {
+        "listing": 0,
+        "nr": 0,
+        "bufr_d": 0,
+        "prepbufr": 0,
+        "twin": 0,
+        "unblok": 0,
+        "total": 0
+    }
+
+    files = os.listdir(directory)
 
     for f in files:
-        if hh_filter:
-            if not (f.startswith(f"{netw}.t{hh_filter}z") or f.startswith("upa_")):
+
+        # Apply HH filter if requested
+        if HH_filter:
+            if not (f.startswith(f"{netw}.t{HH_filter}z") or f.startswith("upa_")):
                 continue
 
-        if f.endswith(".listing"):
-            counts["listing"] += 1
-        elif f.endswith(".nr"):
-            counts["nr"] += 1
-        elif ".bufr_d" in f:
-            counts["bufr_d"] += 1
-        elif "prepbufr" in f:
-            counts["prepbufr"] += 1
-        elif f.startswith("upa_"):
-            counts["twin"] += 1
+        file_counts["total"] += 1
 
-    return counts
+        if f.endswith(".listing"):
+            file_counts["listing"] += 1
+        elif f.endswith(".nr"):
+            file_counts["nr"] += 1
+        elif ".bufr_d" in f:
+            file_counts["bufr_d"] += 1
+        elif "prepbufr" in f:
+            file_counts["prepbufr"] += 1
+        elif f.startswith("upa_"):
+            file_counts["twin"] += 1
+        elif f.endswith("unblok"):
+            file_counts["unblok"] += 1
+
+    return file_counts
 
 
 def compare_directories(left_dir, right_dir, netw, hh_filter=None):
@@ -191,7 +200,7 @@ def main():
     mode = args.mode
     hh = resolve_hh(netw, args.hh)
 
-    left_base, right_base, left_date, right_date = get_compare_targets(mode, date1, date2)
+    left_base, right_base, left_date, right_date = get_compare_targets(mode, netw, date1, date2)
 
     # If user omitted HH and network does not force it, compare all files.
     hh_filter = hh if args.hh is not None or hh != args.hh else args.hh
@@ -226,6 +235,8 @@ def main():
         ["BUFR_D Files", left_counts["bufr_d"], right_counts["bufr_d"]],
         ["Prepbufr Files", left_counts["prepbufr"], right_counts["prepbufr"]],
         ["Twin Files", left_counts["twin"], right_counts["twin"]],
+        ["Unblok Files", left_counts["unblok"], right_counts["unblok"]],
+        ["TOTAL Files", left_counts["total"], right_counts["total"]],
     ]
     print(tabulate(
         counts_rows,
