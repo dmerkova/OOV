@@ -9,17 +9,17 @@ Supports two modes:
 
 It computes:
 - raw binv outputs for left and right
-- numeric differences: left - right
-- relative difference for bytes: ((left-right)/right)*100
+- differences by common field NAME only
+- prints ATTENTION if a NAME is missing on one side
 
 Output:
   compare_prepb_<netw>_<date1>_vs_<date2>_<HH>_<TM>_<mode>.csv
 
 Usage examples:
-  python comp2prepb.py gdas
-  python comp2prepb.py gdas --date1 20260313 --hh 00
-  python comp2prepb.py rap_p --date1 20260313 --hh 06 --tm 00
-  python comp2prepb.py gdas --date1 20260312 --date2 20260313 --mode date --hh 00
+  python comp2prepbs.py gdas
+  python comp2prepbs.py gdas --date1 20260313 --hh 00
+  python comp2prepbs.py rap_p --date1 20260313 --hh 06 --tm 00
+  python comp2prepbs.py gdas --date1 20260312 --date2 20260313 --mode date --hh 00
 """
 
 import os
@@ -37,7 +37,6 @@ from compare_utils import (
     get_file_time,
     format_mode_label,
 )
-
 
 BINV_CMD = "/apps/ops/prod/libs/intel/19.1.3.304/bufr/11.7.0/bin/binv"
 
@@ -59,12 +58,16 @@ def parse_args():
 
 
 def run_binv(input_file, output_file):
-    """
-    Run binv and save stdout to output_file.
-    """
+    """Run binv and save stdout to output_file."""
     try:
         with open(output_file, "w") as fout:
-            subprocess.run([BINV_CMD, input_file], stdout=fout, stderr=subprocess.PIPE, text=True, check=True)
+            subprocess.run(
+                [BINV_CMD, input_file],
+                stdout=fout,
+                stderr=subprocess.PIPE,
+                text=True,
+                check=True
+            )
     except subprocess.CalledProcessError as e:
         print(f"Error running binv on {input_file}")
         print(e.stderr)
@@ -72,10 +75,8 @@ def run_binv(input_file, output_file):
 
 
 def load_binv_output(filename):
-    """
-    Load binv output after skipping first 3 lines.
-    """
-    return pd.read_csv(
+    """Load binv output after skipping first 3 lines."""
+    df = pd.read_csv(
         filename,
         skiprows=3,
         sep=r"\s+",
@@ -83,16 +84,64 @@ def load_binv_output(filename):
         engine="python"
     )
 
+    for col in ["type", "subset", "bytes", "val"]:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    return df
+
 
 def save_section(df, filename, title=None, separator=","):
-    """
-    Append a titled DataFrame section to a CSV-like file.
-    """
+    """Append a titled DataFrame section to a CSV-like file."""
     with open(filename, "a") as f:
         if title:
             f.write(f"{title}\n")
         df.to_csv(f, index=False, sep=separator)
         f.write("\n")
+def build_diff_table(left_df, right_df):
+    """
+    Simple old-style difference table.
+    Assumes left/right rows are in the same order.
+    Prints ATTENTION if names do not match.
+    Returns table with left, right, and differences.
+    """
+
+    if len(left_df) != len(right_df):
+        print("ATTENTION: LEFT and RIGHT have different number of rows")
+
+    if not left_df["name"].equals(right_df["name"]):
+        print("ATTENTION: NAME columns do not match row by row")
+        print("\nLEFT names:")
+        print(left_df["name"].to_string(index=False))
+        print("\nRIGHT names:")
+        print(right_df["name"].to_string(index=False))
+
+    result = pd.DataFrame()
+    result["name"] = left_df["name"]
+
+    result["type_left"] = left_df["type"]
+    result["type_right"] = right_df["type"]
+    result["type_diff"] = left_df["type"] - right_df["type"]
+
+    result["subset_left"] = left_df["subset"]
+    result["subset_right"] = right_df["subset"]
+    result["subset_diff"] = left_df["subset"] - right_df["subset"]
+
+    result["bytes_left"] = left_df["bytes"]
+    result["bytes_right"] = right_df["bytes"]
+    result["bytes_diff"] = left_df["bytes"] - right_df["bytes"]
+
+    result["val_left"] = left_df["val"]
+    result["val_right"] = right_df["val"]
+    result["val_diff"] = left_df["val"] - right_df["val"]
+
+    result["bytes_relative_diff_pct"] = (
+        (left_df["bytes"] - right_df["bytes"])
+        / right_df["bytes"].replace(0, pd.NA) * 100.0
+    )
+
+    return result
+
+
 
 
 def main():
@@ -105,7 +154,7 @@ def main():
     hh = resolve_hh(netw, args.hh)
     tm = resolve_tm(args.tm)
 
-    left_base, right_base, left_date, right_date = get_compare_targets(mode, date1, date2)
+    left_base, right_base, left_date, right_date = get_compare_targets(mode, netw, date1, date2)
 
     left_file = build_prepbufr_path(left_base, netw, left_date, hh, tm)
     right_file = build_prepbufr_path(right_base, netw, right_date, hh, tm)
@@ -143,36 +192,24 @@ def main():
     left_df = load_binv_output(tmp_left)
     right_df = load_binv_output(tmp_right)
 
-    # Merge on identifying columns so rows align safely
-    merged = pd.merge(
-        left_df,
-        right_df,
-        on=["name", "type", "subset"],
-        how="outer",
-        suffixes=("_left", "_right")
-    )
+    diff_df = build_diff_table(left_df, right_df)
 
-    # Convert numeric columns safely
-    for col in ["bytes_left", "val_left", "bytes_right", "val_right"]:
-        merged[col] = pd.to_numeric(merged[col], errors="coerce")
+    print("\n=== LEFT BINV OUTPUT ===")
+    print(left_df.to_string(index=False))
 
-    merged["bytes_diff"] = merged["bytes_left"] - merged["bytes_right"]
-    merged["val_diff"] = merged["val_left"] - merged["val_right"]
-    merged["bytes_relative_diff_pct"] = (
-        (merged["bytes_left"] - merged["bytes_right"]) / merged["bytes_right"] * 100.0
-    )
+    print("\n=== RIGHT BINV OUTPUT ===")
+    print(right_df.to_string(index=False))
 
-    diff_df = merged[[
-        "name", "type", "subset",
-        "bytes_left", "bytes_right", "bytes_diff", "bytes_relative_diff_pct",
-        "val_left", "val_right", "val_diff"
-    ]]
+    print("\n=== DIFFERENCES ===")
+    cols = ["name", "type_diff", "subset_diff", "bytes_diff", "val_diff", "bytes_rel_diff_%"]
+    diff_df = diff_df.rename(columns={"bytes_relative_diff_pct": "bytes_rel_diff_%" })
+    diff_df["bytes_rel_diff_%"] = diff_df["bytes_rel_diff_%"].round(2)
+    diff_df["val_diff"] = diff_df["val_diff"].round(2)
+    print(diff_df[cols].to_string(index=False))
 
-    # Clean old output if exists
     if os.path.exists(output_csv):
         os.remove(output_csv)
 
-    # Save metadata
     with open(output_csv, "w") as f:
         f.write("Metadata\n")
         f.write(f"network,{netw}\n")
@@ -192,7 +229,6 @@ def main():
 
     print(f"\nSaved: {output_csv}")
 
-    # Remove temp files
     for tmp in [tmp_left, tmp_right]:
         if os.path.exists(tmp):
             os.remove(tmp)

@@ -13,8 +13,12 @@ USAGE: (need to load python module: module load python )
 python comp2dirs.py gfs --date1 20260313 --hh 00 --mode exp
 python comp2dirs.py gdas --date1 20260312 --date2 20260313 --hh 00 --mode date
 python comp2prepbs.py rap_p --date1 20260313 --hh 06 --tm 00 --mode exp
-# ###################### 
+# NOTE:  special treatment for CDAS due to fact that test is saved 
+# on ptmp instead of stmp due time restrictions
+
+# ############################ 
 # keeping old versions as is 
+# ############################ 
    com2dir.py
    cop2prepb.py 
 

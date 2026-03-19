@@ -13,15 +13,16 @@ Compares file presence and file sizes for:
 - nr
 - prepbufr
 - twin-like files
+- unblok (only cdas has them) 
 
 Output:
   compare_dir_<netw>_<date1>_vs_<date2>_<HH or all>_<mode>.csv
 
 Usage examples:
-  python comp2dir.py gdas
-  python comp2dir.py gdas --date1 20260313 --hh 00
-  python comp2dir.py gdas --date1 20260313 --mode exp --hh 00
-  python comp2dir.py gdas --date1 20260312 --date2 20260313 --mode date --hh 00
+  python comp2dirs.py gdas
+  python comp2dirs.py gdas --date1 20260313 --hh 00
+  python comp2dirs.py gdas --date1 20260313 --mode exp --hh 00
+  python comp2dirs.py gdas --date1 20260312 --date2 20260313 --mode date --hh 00
 """
 
 import os
