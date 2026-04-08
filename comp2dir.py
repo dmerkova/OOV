@@ -23,9 +23,10 @@ from datetime import datetime
 
 #### !! NEED TO DEFINE common base paths ##############################
 #BASE_STMP = "/lfs/h1/ops/para/com/obsproc/v1.2"
-BASE_STMP = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v129/com/obsproc/v1.2.9"
-BASE_COMROOT = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v127/com/obsproc/v1.3.0"
-#BASE_COMROOT = "/lfs/h1/ops/prod/com/obsproc/v1.2"
+#BASE_STMP = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v129/com/obsproc/v5.0"
+BASE_STMP = "/lfs/h2/emc/stmp/iliana.genkova/CRON/REL/com/obsproc/v5.0"
+#BASE_COMROOT = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v127/com/obsproc/v1.3.0"
+BASE_COMROOT = "/lfs/h1/ops/prod/com/obsproc/v1.2"
 #BASE_COMROOT = "/lfs/h2/emc/prod/com/obsproc/v1.3"
 #######################################################################
 
@@ -70,7 +71,7 @@ if HH:
 if netw == 'cdas':
     print('****  IF CDAS AND CHECKING MY TEST NEED TO UNCOMMENT FOLLOWING LINE *******')
     print('because the use of PTMP')
-    #mySTMP = '/lfs/h2/emc/ptmp/dagmar.merkova/CRON/R13/com/obsproc/v1.3/'+netw+'.'+datum+'/'+HH+'/atmos'
+    mySTMP = '/lfs/h2/emc/ptmp/dagmar.merkova/CRON/v129/com/obsproc/v5.0/'+netw+'.'+datum+'/'+HH+'/atmos'
 
 print(f"Comparing directories:\nmySTMP: {mySTMP}\nmyCOMROOT: {myCOMROOT}\n")
 

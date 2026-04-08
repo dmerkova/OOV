@@ -19,10 +19,10 @@ Output:
   compare_dir_<netw>_<date1>_vs_<date2>_<HH or all>_<mode>.csv
 
 Usage examples:
-  python comp2dirs.py gdas
-  python comp2dirs.py gdas --date1 20260313 --hh 00
-  python comp2dirs.py gdas --date1 20260313 --mode exp --hh 00
-  python comp2dirs.py gdas --date1 20260312 --date2 20260313 --mode date --hh 00
+  python comp2dirs.py <netw>
+  python comp2dirs.py <netw> --date1 20260313 --hh 00
+  python comp2dirs.py <netw> --date1 20260313 --mode exp --hh 00
+  python comp2dirs.py <netw> --date1 20260312 --date2 20260313 --mode date --hh 00
 """
 
 import os
@@ -46,6 +46,7 @@ def parse_args():
     parser.add_argument("--date1", default=today_yyyymmdd(), help="Left date YYYYMMDD (default: today)")
     parser.add_argument("--date2", default=None, help="Right date YYYYMMDD")
     parser.add_argument("--hh", default=None, help="Cycle HH (if omitted, compare all files unless forced by network rule)")
+    parser.add_argument("--tm", default=None, help="Time marker (tm00, tm01, tm02, ...)  - if omitted, compare all files unless forced by network rule)")
     parser.add_argument(
         "--mode",
         choices=["exp", "date"],
@@ -55,7 +56,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def get_files_and_sizes(directory, netw, hh_filter=None):
+def get_files_and_sizes(directory, netw, hh_filter=None, tm_filter=None):
     """
     Recursively list all files with sizes.
     If hh_filter is given, keep only files matching netw.tHHz* OR upa_*.
@@ -74,13 +75,17 @@ def get_files_and_sizes(directory, netw, hh_filter=None):
                 ):
                     continue
 
+            if tm_filter:
+                if f".{tm_filter}." not in file:
+                    continue
+
             full_path = os.path.join(root, file)
             relative_path = os.path.relpath(full_path, directory)
             file_dict[relative_path] = os.path.getsize(full_path)
 
     return file_dict
 
-def count_files(directory, netw, HH_filter=None):
+def count_files(directory, netw, HH_filter=None, tm_filter=None):
     """Count occurrences of .listing, .nr, .bufr_d, prepbufr, twin, unblock, and total files."""
 
     if not os.path.exists(directory):
@@ -105,6 +110,10 @@ def count_files(directory, netw, HH_filter=None):
             if not (f.startswith(f"{netw}.t{HH_filter}z") or f.startswith("upa_")):
                 continue
 
+        if tm_filter:
+            if f".{tm_filter}." not in f:
+                continue
+
         file_counts["total"] += 1
 
         if f.endswith(".listing"):
@@ -123,7 +132,7 @@ def count_files(directory, netw, HH_filter=None):
     return file_counts
 
 
-def compare_directories(left_dir, right_dir, netw, hh_filter=None):
+def compare_directories(left_dir, right_dir, netw, hh_filter=None, tm_filter=None):
     """
     Compare file names and sizes between two directories.
     """
@@ -135,8 +144,8 @@ def compare_directories(left_dir, right_dir, netw, hh_filter=None):
         print(f"Error: right directory does not exist: {right_dir}")
         sys.exit(1)
 
-    left_files = get_files_and_sizes(left_dir, netw, hh_filter)
-    right_files = get_files_and_sizes(right_dir, netw, hh_filter)
+    left_files = get_files_and_sizes(left_dir, netw, hh_filter, tm_filter)
+    right_files = get_files_and_sizes(right_dir, netw, hh_filter, tm_filter)
 
     table_data = []
     all_files = left_files.keys() | right_files.keys()
@@ -200,6 +209,7 @@ def main():
     date2 = args.date2
     mode = args.mode
     hh = resolve_hh(netw, args.hh)
+    tm = resolve_hh(netw, args.tm)
 
     left_base, right_base, left_date, right_date = get_compare_targets(mode, netw, date1, date2)
 
@@ -207,6 +217,11 @@ def main():
     hh_filter = hh if args.hh is not None or hh != args.hh else args.hh
     if args.hh is None and hh == "00" and netw not in ["gdas", "gfs"]:
         hh_filter = None
+    
+    # If user omitted TM and network does not force it, compare all files.
+    tm_filter = tm if args.tm is not None or tm != args.tm else args.tm
+    if args.tm is None and tm == "00" and netw not in ["gdas", "gfs"]:
+        tm_filter = None
 
     left_dir = build_cycle_dir(left_base, netw, left_date, hh)
     right_dir = build_cycle_dir(right_base, netw, right_date, hh)
@@ -223,11 +238,13 @@ def main():
     print(f"date1    : {left_date}")
     print(f"date2    : {right_date}")
     print(f"hh       : {hh_filter if hh_filter else 'ALL'}")
+    print(f"tm       : {tm_filter if tm_filter else 'ALL'}")
 
-    df_compare = compare_directories(left_dir, right_dir, netw, hh_filter)
 
-    left_counts = count_files(left_dir, netw, hh_filter)
-    right_counts = count_files(right_dir, netw, hh_filter)
+    df_compare = compare_directories(left_dir, right_dir, netw, hh_filter,tm_filter)
+
+    left_counts = count_files(left_dir, netw, hh_filter, tm_filter)
+    right_counts = count_files(right_dir, netw, hh_filter, tm_filter)
 
     print("\nFile Type Counts per Directory:")
     counts_rows = [
@@ -246,7 +263,17 @@ def main():
         colalign=("left", "right", "right")
     ))
 
+    print("\nComparing directories:")
+    print(f"left_dir : {left_dir}")
+    print(f"right_dir: {right_dir}")
+    print(f"mode     : {mode_label}")
+    print(f"network  : {netw}")
+    print(f"date1    : {left_date}")
+    print(f"date2    : {right_date}")
+    print(f"hh       : {hh_filter if hh_filter else 'ALL'}")
+
     df_compare.to_csv(output_csv, index=False)
+    
 
     with open(output_csv, "a") as f:
         f.write("\n")

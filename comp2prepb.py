@@ -23,8 +23,9 @@ import subprocess
 from datetime import datetime
 
 ###################### NEED TO SET DIRECTORIES ###########################################
-BASE_STMP = "/lfs/h1/ops/para/com/obsproc/v1.3"
-#BASE_STMP = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/R13/com/obsproc/v1.3"
+#BASE_STMP = "/lfs/h1/ops/para/com/obsproc/v1.3"
+BASE_STMP = "/lfs/h2/emc/stmp/iliana.genkova/CRON/REL/com/obsproc/v5.0"
+#BASE_STMP = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v129/com/obsproc/v5.0"
 BASE_COMROOT = "/lfs/h1/ops/prod/com/obsproc/v1.2"
 ##########################################################################################
 # Check the number of arguments
@@ -66,6 +67,7 @@ myCOMROOT = f"{BASE_COMROOT}/{netw}.{datum}"
 if netw == 'cdas':
     print('****  IF CDAS is tested, prepbufr file  production has 24h delay *******')
     print('****  IF checking local test file, make sure if you need to set PTMP directory for mySTMP *****')
+    mySTMP = '/lfs/h2/emc/ptmp/dagmar.merkova/CRON/v129/com/obsproc/v5.0/'+netw+'.'+datum
     #mySTMP = '/lfs/h2/ptmp/dagmar.merkova/CRON/com/obsproc/v1.3/'+netw+'.'+datum+'/'+HH+'/atmos'
 
 
