@@ -146,7 +146,8 @@ def compare_directories(left_dir, right_dir, netw, hh_filter=None, tm_filter=Non
 
     left_files = get_files_and_sizes(left_dir, netw, hh_filter, tm_filter)
     right_files = get_files_and_sizes(right_dir, netw, hh_filter, tm_filter)
-
+    
+# Add debug prints at key points
     table_data = []
     all_files = left_files.keys() | right_files.keys()
 
@@ -214,33 +215,27 @@ def main():
     left_base, right_base, left_date, right_date = get_compare_targets(mode, netw, date1, date2)
 
     # If user omitted HH and network does not force it, compare all files.
-    # Apply HH filter only if explicitly requested or required by network
+    # For gdas/gfs: HH is in directory path (/HH/atmos/), NOT in filename
+    # For others: HH is in filename (nam.t00z*, rap.t00z*), so need filename filter
     if args.hh is not None:
-       hh_filter = hh
-       print("###### DEBUG DM:{hh_filter}") 
+        # User explicitly specified HH
+        hh_filter = hh if netw not in ["gdas", "gfs"] else None
     elif netw in ["gdas", "gfs"]:
-       hh_filter = hh  # Use resolved default (typically "00")
+        # HH already in directory structure, don't filter filenames
+        hh_filter = None
     else:
-       hh_filter = None  # Compare all files
+        # Other networks: filter by filename
+        hh_filter = hh if hh is not None else None
 
-    # Apply TM filter only if explicitly requested or required by network
+    # Same for TM filter
     if args.tm is not None:
-       tm_filter = tm
+        tm_filter = tm if netw not in ["gdas", "gfs"] else None
     elif netw in ["gdas", "gfs"]:
-       tm_filter = tm  # Use resolved default (typically "00")
+        tm_filter = None
     else:
-       tm_filter = None  # Compare all files
+        tm_filter = tm if tm is not None else None
 
-#### 
-#    hh_filter = hh if args.hh is not None or hh != args.hh else args.hh
-#    if args.hh is None and hh == "00" and netw not in ["gdas", "gfs"]:
-#        hh_filter = None
-#    
-#    # If user omitted TM and network does not force it, compare all files.
-#    tm_filter = tm if args.tm is not None or tm != args.tm else args.tm
-#    if args.tm is None and tm == "00" and netw not in ["gdas", "gfs"]:
-#        tm_filter = None
-#
+
     left_dir = build_cycle_dir(left_base, netw, left_date, hh)
     right_dir = build_cycle_dir(right_base, netw, right_date, hh)
 
