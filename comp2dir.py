@@ -22,9 +22,9 @@ from datetime import datetime
 
 
 #### !! NEED TO DEFINE common base paths ##############################
-#BASE_STMP = "/lfs/h1/ops/para/com/obsproc/v1.2"
+BASE_STMP = "/lfs/h1/ops/para/com/obsproc/v1.2"
 #BASE_STMP = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v129/com/obsproc/v5.0"
-BASE_STMP = "/lfs/h2/emc/stmp/iliana.genkova/CRON/REL/com/obsproc/v5.0"
+#BASE_STMP = "/lfs/h2/emc/stmp/iliana.genkova/CRON/REL/com/obsproc/v5.0"
 #BASE_COMROOT = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v127/com/obsproc/v1.3.0"
 BASE_COMROOT = "/lfs/h1/ops/prod/com/obsproc/v1.2"
 #BASE_COMROOT = "/lfs/h2/emc/prod/com/obsproc/v1.3"

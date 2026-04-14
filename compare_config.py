@@ -11,14 +11,14 @@ class CompareConfig:
     # Default base paths
     #test_base: str = "/lfs/h2/emc/stmp/ashley.stanfield/CRON/kshtobash/com/obsproc/v1.3.0"
     #test_base: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v128ksh/com/obsproc/v1.3.0"
-    test_base: str = "/lfs/h2/emc/stmp/iliana.genkova/CRON/REL/com/obsproc/v5.0"
+    #test_base: str = "/lfs/h2/emc/stmp/iliana.genkova/CRON/REL/com/obsproc/v5.0"
     #test_base: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v127/com/obsproc/v1.3.0"
     #test_base: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v129/com/obsproc/v5.0"
     #test_base: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v127.nap/com/obsproc/v1.3.0"
     #baseline_base: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v127/com/obsproc/v1.3.0"
 
     # Optional alternate path
-    # test_base: str = "/lfs/h1/ops/para/com/obsproc/v1.3"
+    test_base: str = "/lfs/h1/ops/para/com/obsproc/v1.2"
     #baseline_base: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v127/com/obsproc/v1.3.0"
     baseline_base: str = "/lfs/h1/ops/prod/com/obsproc/v1.2"
 

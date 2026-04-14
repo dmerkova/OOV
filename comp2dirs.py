@@ -214,15 +214,33 @@ def main():
     left_base, right_base, left_date, right_date = get_compare_targets(mode, netw, date1, date2)
 
     # If user omitted HH and network does not force it, compare all files.
-    hh_filter = hh if args.hh is not None or hh != args.hh else args.hh
-    if args.hh is None and hh == "00" and netw not in ["gdas", "gfs"]:
-        hh_filter = None
-    
-    # If user omitted TM and network does not force it, compare all files.
-    tm_filter = tm if args.tm is not None or tm != args.tm else args.tm
-    if args.tm is None and tm == "00" and netw not in ["gdas", "gfs"]:
-        tm_filter = None
+    # Apply HH filter only if explicitly requested or required by network
+    if args.hh is not None:
+       hh_filter = hh
+       print("###### DEBUG DM:{hh_filter}") 
+    elif netw in ["gdas", "gfs"]:
+       hh_filter = hh  # Use resolved default (typically "00")
+    else:
+       hh_filter = None  # Compare all files
 
+    # Apply TM filter only if explicitly requested or required by network
+    if args.tm is not None:
+       tm_filter = tm
+    elif netw in ["gdas", "gfs"]:
+       tm_filter = tm  # Use resolved default (typically "00")
+    else:
+       tm_filter = None  # Compare all files
+
+#### 
+#    hh_filter = hh if args.hh is not None or hh != args.hh else args.hh
+#    if args.hh is None and hh == "00" and netw not in ["gdas", "gfs"]:
+#        hh_filter = None
+#    
+#    # If user omitted TM and network does not force it, compare all files.
+#    tm_filter = tm if args.tm is not None or tm != args.tm else args.tm
+#    if args.tm is None and tm == "00" and netw not in ["gdas", "gfs"]:
+#        tm_filter = None
+#
     left_dir = build_cycle_dir(left_base, netw, left_date, hh)
     right_dir = build_cycle_dir(right_base, netw, right_date, hh)
 
