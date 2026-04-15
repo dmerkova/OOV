@@ -256,6 +256,7 @@ def main():
     print(f"date2    : {right_date}")
     print(f"hh       : {display_hh}")
     print(f"tm       : {tm_filter if tm_filter else 'ALL'}")
+    print(f"tm       : {tm_filter if tm_filter else 'ALL'}")
 
 
     df_compare = compare_directories(left_dir, right_dir, netw, hh_filter,tm_filter)
@@ -302,6 +303,7 @@ def main():
         f.write(f"date1,{left_date}\n")
         f.write(f"date2,{right_date}\n")
         f.write(f"hh,{display_hh}\n")
+        f.write(f"tm,{tm_filter if tm_filter else 'ALL'}\n")
         f.write("\n")
 
     df_counts = pd.DataFrame(
