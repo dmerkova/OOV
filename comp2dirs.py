@@ -36,6 +36,7 @@ from compare_utils import (
     get_compare_targets,
     build_cycle_dir,
     resolve_hh,
+    resolve_tm,
     format_mode_label,
 )
 
@@ -210,7 +211,7 @@ def main():
     date2 = args.date2
     mode = args.mode
     hh = resolve_hh(netw, args.hh)
-    tm = resolve_hh(netw, args.tm)
+    tm = resolve_tm(args.tm)
 
     left_base, right_base, left_date, right_date = get_compare_targets(mode, netw, date1, date2)
 
