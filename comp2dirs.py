@@ -77,7 +77,7 @@ def get_files_and_sizes(directory, netw, hh_filter=None, tm_filter=None):
                     continue
 
             if tm_filter:
-                if f".{tm_filter}." not in file:
+                if f".tm{tm_filter}." not in file:
                     continue
 
             full_path = os.path.join(root, file)
@@ -112,7 +112,7 @@ def count_files(directory, netw, HH_filter=None, tm_filter=None):
                 continue
 
         if tm_filter:
-            if f".{tm_filter}." not in f:
+            if f".tm{tm_filter}." not in f:
                 continue
 
         file_counts["total"] += 1
@@ -243,8 +243,9 @@ def main():
     # Use cycle HH for reporting/output naming in that case.
     display_hh = hh if netw in ["gdas", "gfs"] else (hh_filter if hh_filter else "ALL")
     hh_part = str(display_hh).lower() if display_hh != "ALL" else "all"
+    tm_part = f"_tm{tm_filter}" if tm_filter else ""
     mode_label = format_mode_label(mode)
-    output_csv = f"compare_dir_{netw}_{left_date}_vs_{right_date}_{hh_part}_{mode_label}.csv"
+    output_csv = f"compare_dir_{netw}_{left_date}_vs_{right_date}_{hh_part}{tm_part}_{mode_label}.csv"
 
     print("\nComparing directories:")
     print(f"left_dir : {left_dir}")
