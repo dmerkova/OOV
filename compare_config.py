@@ -57,7 +57,7 @@ NETWORK_RULES = {
         "has_atmos": False,
         "prepbufr_has_tm": True,
         "force_hh": None,
-        "test_base": "/lfs/h2/emc/ptmp/dagmar.merkova/CRON/v129/com/obsproc/v5.0",
+        #"test_base": "/lfs/h2/emc/ptmp/dagmar.merkova/CRON/v129/com/obsproc/v5.0",
         "note": "CDAS may require manual PTMP adjustment if testing local files.",
     },
     "rap": {
