@@ -37,10 +37,6 @@ is saved mostly on `ptmp` instead of `stmp` due to time restrictions.
 This have to be set in compare_config.py by removing commment # for test_base.  
 For para/prod tests, keep it commented!
 
-### Old versions kept as-is
-
-- `com2dir.py`
-- `cop2prepb.py`
 
 ## Setup
 
@@ -72,7 +68,12 @@ Supported networks:
 - `urma`
 - `rtma`
 
+
+### Old versions kept as-is
 Before running comparison scripts, set the paths for `BASE_COMROOT` and `BASE_SMTP`.
+
+- `comp2dir.py`
+- `copm2prepb.py`
 
 ## Available comparison scripts
 
