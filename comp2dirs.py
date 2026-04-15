@@ -228,13 +228,12 @@ def main():
         # Other networks: filter by filename
         hh_filter = hh if hh is not None else None
 
-    # Same for TM filter
+    # TM filter should only be applied when user explicitly provides --tm.
+    # Default TM is for naming/metadata, not for filtering directory comparisons.
     if args.tm is not None:
         tm_filter = tm if netw not in ["gdas", "gfs"] else None
-    elif netw in ["gdas", "gfs"]:
-        tm_filter = None
     else:
-        tm_filter = tm if tm is not None else None
+        tm_filter = None
 
 
     left_dir = build_cycle_dir(left_base, netw, left_date, hh)
