@@ -242,6 +242,7 @@ def main():
     # gdas/gfs keep HH in directory path, so hh_filter is intentionally None.
     # Use cycle HH for reporting/output naming in that case.
     display_hh = hh if netw in ["gdas", "gfs"] else (hh_filter if hh_filter else "ALL")
+    tm_relevant = netw not in ["gdas", "gfs"]
     hh_part = str(display_hh).lower() if display_hh != "ALL" else "all"
     tm_part = f"_tm{tm_filter}" if tm_filter else ""
     mode_label = format_mode_label(mode)
@@ -255,8 +256,8 @@ def main():
     print(f"date1    : {left_date}")
     print(f"date2    : {right_date}")
     print(f"hh       : {display_hh}")
-    print(f"tm       : {tm_filter if tm_filter else 'ALL'}")
-    print(f"tm       : {tm_filter if tm_filter else 'ALL'}")
+    if tm_relevant:
+        print(f"tm       : {tm_filter if tm_filter else 'ALL'}")
 
 
     df_compare = compare_directories(left_dir, right_dir, netw, hh_filter,tm_filter)
@@ -289,6 +290,8 @@ def main():
     print(f"date1    : {left_date}")
     print(f"date2    : {right_date}")
     print(f"hh       : {display_hh}")
+    if tm_relevant:
+        print(f"tm       : {tm_filter if tm_filter else 'ALL'}")
 
     df_compare.to_csv(output_csv, index=False)
     
@@ -303,7 +306,8 @@ def main():
         f.write(f"date1,{left_date}\n")
         f.write(f"date2,{right_date}\n")
         f.write(f"hh,{display_hh}\n")
-        f.write(f"tm,{tm_filter if tm_filter else 'ALL'}\n")
+        if tm_relevant:
+            f.write(f"tm,{tm_filter if tm_filter else 'ALL'}\n")
         f.write("\n")
 
     df_counts = pd.DataFrame(
