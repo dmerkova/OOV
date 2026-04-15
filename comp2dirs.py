@@ -239,7 +239,10 @@ def main():
     left_dir = build_cycle_dir(left_base, netw, left_date, hh)
     right_dir = build_cycle_dir(right_base, netw, right_date, hh)
 
-    hh_part = hh if hh_filter else "all"
+    # gdas/gfs keep HH in directory path, so hh_filter is intentionally None.
+    # Use cycle HH for reporting/output naming in that case.
+    display_hh = hh if netw in ["gdas", "gfs"] else (hh_filter if hh_filter else "ALL")
+    hh_part = str(display_hh).lower() if display_hh != "ALL" else "all"
     mode_label = format_mode_label(mode)
     output_csv = f"compare_dir_{netw}_{left_date}_vs_{right_date}_{hh_part}_{mode_label}.csv"
 
@@ -250,7 +253,7 @@ def main():
     print(f"network  : {netw}")
     print(f"date1    : {left_date}")
     print(f"date2    : {right_date}")
-    print(f"hh       : {hh_filter if hh_filter else 'ALL'}")
+    print(f"hh       : {display_hh}")
     print(f"tm       : {tm_filter if tm_filter else 'ALL'}")
 
 
@@ -283,7 +286,7 @@ def main():
     print(f"network  : {netw}")
     print(f"date1    : {left_date}")
     print(f"date2    : {right_date}")
-    print(f"hh       : {hh_filter if hh_filter else 'ALL'}")
+    print(f"hh       : {display_hh}")
 
     df_compare.to_csv(output_csv, index=False)
     
@@ -297,7 +300,7 @@ def main():
         f.write(f"network,{netw}\n")
         f.write(f"date1,{left_date}\n")
         f.write(f"date2,{right_date}\n")
-        f.write(f"hh,{hh_filter if hh_filter else 'ALL'}\n")
+        f.write(f"hh,{display_hh}\n")
         f.write("\n")
 
     df_counts = pd.DataFrame(
