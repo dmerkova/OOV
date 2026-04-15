@@ -1,6 +1,7 @@
 # Ignore csv files
 *.csv
 *.log
+compare_config.py
 # Ignore everything in a folder
 archive/
 tmp/

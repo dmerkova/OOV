@@ -84,6 +84,30 @@ NETWORK_RULES = {
         "force_hh": None,
         "note": "NAM prepbufr uses tm suffix.",
     },
+    "nam": {
+        "has_atmos": False,
+        "prepbufr_has_tm": True,
+        "force_hh": None,
+        "note": "NAM prepbufr uses tm suffix.",
+    },
+    "rtma": {
+        "has_atmos": False,
+        "prepbufr_has_tm": True,
+        "force_hh": None,
+        "note": "RTMA prepbufr uses tm suffix.",
+    },
+    "rrfs": {
+        "has_atmos": False,
+        "prepbufr_has_tm": True,
+        "force_hh": None,
+        "note": "RRFS prepbufr uses tm suffix.",
+    },
+    "urma": {
+        "has_atmos": False,
+        "prepbufr_has_tm": True,
+        "force_hh": None,
+        "note": "URMA prepbufr uses tm suffix.",
+    },
 }
 
 
