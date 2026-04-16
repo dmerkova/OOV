@@ -102,8 +102,11 @@ def count_files(directory, netw, HH_filter=None, tm_filter=None):
         "total": 0
     }
 
-    files = os.listdir(directory)
-
+    #files = os.listdir(directory)
+    files = []
+    for root, _, filelist in os.walk(directory):
+        files.extend(filelist)
+    
     for f in files:
 
         # Apply HH filter if requested
