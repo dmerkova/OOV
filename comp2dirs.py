@@ -4,8 +4,8 @@ Description:
 Compare file inventory between two directory trees.
 
 Supports two modes:
-1) exp  = test_base vs baseline_base
-2) date = test_base(date1) vs test_base(date2)
+1) exp  = path2 vs path1
+2) date = path2(date1) vs path2(date2)
 
 Compares file presence and file sizes for:
 - bufr_d
@@ -55,7 +55,7 @@ def parse_args():
         "--mode",
         choices=["exp", "date"],
         default="exp",
-        help="exp=test vs baseline, date=same base different days"
+        help="exp=path2 vs path1, date=same path2 different days"
     )
     return parser.parse_args()
 

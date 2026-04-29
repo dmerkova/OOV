@@ -4,8 +4,8 @@ Description:
 Compare prepbufr content using binv output.
 
 Supports two modes:
-1) exp  = test_base vs baseline_base
-2) date = test_base(date1) vs test_base(date2)
+1) exp  = path2 vs path1
+2) date = path2(date1) vs path2(date2)
 
 It computes:
 - raw binv outputs for left and right
@@ -52,7 +52,7 @@ def parse_args():
         "--mode",
         choices=["exp", "date"],
         default="exp",
-        help="exp=test vs baseline, date=same base different days"
+        help="exp=path2 vs path1, date=same path2 different days"
     )
     return parser.parse_args()
 

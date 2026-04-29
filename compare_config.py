@@ -9,18 +9,18 @@ from dataclasses import dataclass
 @dataclass
 class CompareConfig:
     # Default base paths
-    #test_base: str = "/lfs/h2/emc/stmp/ashley.stanfield/CRON/kshtobash/com/obsproc/v1.3.0"
-    #test_base: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v128ksh/com/obsproc/v1.3.0"
-    #test_base: str = "/lfs/h2/emc/stmp/iliana.genkova/CRON/REL/com/obsproc/v5.0"
-    #test_base: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v127/com/obsproc/v1.3.0"
-    #test_base: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v129/com/obsproc/v5.0"
-    #test_base: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v127.nap/com/obsproc/v1.3.0"
-    #baseline_base: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v127/com/obsproc/v1.3.0"
+    #path2: str = "/lfs/h2/emc/stmp/ashley.stanfield/CRON/kshtobash/com/obsproc/v1.3.0"
+    #path2: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v128ksh/com/obsproc/v1.3.0"
+    #path2: str = "/lfs/h2/emc/stmp/iliana.genkova/CRON/REL/com/obsproc/v5.0"
+    #path2: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v127/com/obsproc/v1.3.0"
+    #path2: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v129/com/obsproc/v5.0"
+    #path2: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v127.nap/com/obsproc/v1.3.0"
+    #path1: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v127/com/obsproc/v1.3.0"
 
     # Optional alternate path
-    test_base: str = "/lfs/h1/ops/para/com/obsproc/v1.2"
-    #baseline_base: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v127/com/obsproc/v1.3.0"
-    baseline_base: str = "/lfs/h1/ops/prod/com/obsproc/v1.2"
+    path2: str = "/lfs/h1/ops/para/com/obsproc/v1.2"
+    #path1: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v127/com/obsproc/v1.3.0"
+    path1: str = "/lfs/h1/ops/prod/com/obsproc/v1.2"
 
     default_hh: str = "00"
     default_tm: str = "00"
@@ -57,7 +57,7 @@ NETWORK_RULES = {
         "has_atmos": False,
         "prepbufr_has_tm": True,
         "force_hh": None,
-        #"test_base": "/lfs/h2/emc/ptmp/dagmar.merkova/CRON/v129/com/obsproc/v5.0",
+        #"path2": "/lfs/h2/emc/ptmp/dagmar.merkova/CRON/v129/com/obsproc/v5.0",
         "note": "CDAS may require manual PTMP adjustment if testing local files.",
     },
     "rap": {

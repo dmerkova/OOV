@@ -57,27 +57,27 @@ def get_compare_targets(mode, netw, date1, date2=None):
     Decide which bases/dates go on left/right side.
 
     mode='exp'
-        left  = test_base/date1
-        right = baseline_base/(date2 or date1)
+        left  = path2/date1
+        right = path1/(date2 or date1)
 
     mode='date'
-        left  = test_base/date1
-        right = test_base/date2
+        left  = path2/date1
+        right = path2/date2
     """
     rules = NETWORK_RULES.get(netw, DEFAULT_RULES)
 
-    test_base = rules.get("test_base", CONFIG.test_base)
-    baseline_base = rules.get("baseline_base", CONFIG.baseline_base)
+    path1 = rules.get("path1", CONFIG.path1)
+    path2 = rules.get("path2", CONFIG.path2)
 
     if mode == "exp":
-        left_base = test_base
-        right_base = baseline_base
+        left_base = path2
+        right_base = path1
         right_date = date2 if date2 else date1
     elif mode == "date":
         if not date2:
             raise ValueError("mode='date' requires --date2")
-        left_base = test_base
-        right_base = test_base
+        left_base = path2
+        right_base = path2
         right_date = date2
     else:
         raise ValueError(f"Unsupported mode: {mode}")

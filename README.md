@@ -35,7 +35,7 @@ python comp2prepbs.py rap_p --date1 20260313 --hh 06 --tm 00 --mode exp
 
 NOTE for CDAS: special treatment for CDAS due to the fact that user exp 
 is saved mostly on `ptmp` instead of `stmp` due to time restrictions. 
-This have to be set in compare_config.py by removing commment # for test_base.  
+This have to be set in compare_config.py by removing commment # for path2.  
 For para/prod tests, keep it commented!
 
 
