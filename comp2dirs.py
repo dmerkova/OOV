@@ -23,6 +23,7 @@ Usage examples:
   python comp2dirs.py <netw> --date1 20260313 --hh 00
   python comp2dirs.py <netw> --date1 20260313 --mode exp --hh 00
   python comp2dirs.py <netw> --date1 20260312 --date2 20260313 --mode date --hh 00
+    python comp2dirs.py <netw> --path1 /path/to/dir1 --path2 /path/to/dir2 --hh 00
 """
 
 import os
@@ -46,6 +47,8 @@ def parse_args():
     parser.add_argument("network", help="Network name, e.g. gdas, gfs, cdas, rap_p")
     parser.add_argument("--date1", default=today_yyyymmdd(), help="Left date YYYYMMDD (default: today)")
     parser.add_argument("--date2", default=None, help="Right date YYYYMMDD")
+    parser.add_argument("--path1", default=None, help="Direct left directory path (bypasses config/mode date path build)")
+    parser.add_argument("--path2", default=None, help="Direct right directory path (bypasses config/mode date path build)")
     parser.add_argument("--hh", default=None, help="Cycle HH (if omitted, compare all files unless forced by network rule)")
     parser.add_argument("--tm", default=None, help="Time marker (tm00, tm01, tm02, ...)  - if omitted, compare all files unless forced by network rule)")
     parser.add_argument(
@@ -209,6 +212,10 @@ def compare_directories(left_dir, right_dir, netw, hh_filter=None, tm_filter=Non
 def main():
     args = parse_args()
 
+    if bool(args.path1) ^ bool(args.path2):
+        print("Error: --path1 and --path2 must be provided together.")
+        sys.exit(2)
+
     netw = args.network
     date1 = args.date1
     date2 = args.date2
@@ -216,7 +223,17 @@ def main():
     hh = resolve_hh(netw, args.hh)
     tm = resolve_tm(args.tm)
 
-    left_base, right_base, left_date, right_date = get_compare_targets(mode, netw, date1, date2)
+    if args.path1 and args.path2:
+        left_dir = os.path.abspath(args.path1)
+        right_dir = os.path.abspath(args.path2)
+        left_date = date1
+        right_date = date2 if date2 else date1
+        mode_label = "custom"
+    else:
+        left_base, right_base, left_date, right_date = get_compare_targets(mode, netw, date1, date2)
+        left_dir = build_cycle_dir(left_base, netw, left_date, hh)
+        right_dir = build_cycle_dir(right_base, netw, right_date, hh)
+        mode_label = format_mode_label(mode)
 
     # If user omitted HH and network does not force it, compare all files.
     # For gdas/gfs: HH is in directory path (/HH/atmos/), NOT in filename
@@ -238,17 +255,12 @@ def main():
     else:
         tm_filter = None
 
-
-    left_dir = build_cycle_dir(left_base, netw, left_date, hh)
-    right_dir = build_cycle_dir(right_base, netw, right_date, hh)
-
     # gdas/gfs keep HH in directory path, so hh_filter is intentionally None.
     # Use cycle HH for reporting/output naming in that case.
     display_hh = hh if netw in ["gdas", "gfs"] else (hh_filter if hh_filter else "ALL")
     tm_relevant = netw not in ["gdas", "gfs"]
     hh_part = str(display_hh).lower() if display_hh != "ALL" else "all"
     tm_part = f"_tm{tm_filter}" if tm_filter else ""
-    mode_label = format_mode_label(mode)
     output_csv = f"compare_dir_{netw}_{left_date}_vs_{right_date}_{hh_part}{tm_part}_{mode_label}.csv"
 
     print("\nComparing directories:")
