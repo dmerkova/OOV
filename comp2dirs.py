@@ -23,7 +23,7 @@ Usage examples:
   python comp2dirs.py <netw> --date1 20260313 --hh 00
   python comp2dirs.py <netw> --date1 20260313 --mode exp --hh 00
   python comp2dirs.py <netw> --date1 20260312 --date2 20260313 --mode date --hh 00
-    python comp2dirs.py <netw> --path1 /path/to/dir1 --path2 /path/to/dir2 --hh 00
+    python comp2dirs.py <netw> --path1 /path/to/base1 --path2 /path/to/base2 --date1 20260313 --hh 00
 """
 
 import os
@@ -47,8 +47,8 @@ def parse_args():
     parser.add_argument("network", help="Network name, e.g. gdas, gfs, cdas, rap_p")
     parser.add_argument("--date1", default=today_yyyymmdd(), help="Left date YYYYMMDD (default: today)")
     parser.add_argument("--date2", default=None, help="Right date YYYYMMDD")
-    parser.add_argument("--path1", default=None, help="Direct left directory path (bypasses config/mode date path build)")
-    parser.add_argument("--path2", default=None, help="Direct right directory path (bypasses config/mode date path build)")
+    parser.add_argument("--path1", default=None, help="Override config path1 base directory")
+    parser.add_argument("--path2", default=None, help="Override config path2 base directory")
     parser.add_argument("--hh", default=None, help="Cycle HH (if omitted, compare all files unless forced by network rule)")
     parser.add_argument("--tm", default=None, help="Time marker (tm00, tm01, tm02, ...)  - if omitted, compare all files unless forced by network rule)")
     parser.add_argument(
@@ -224,11 +224,20 @@ def main():
     tm = resolve_tm(args.tm)
 
     if args.path1 and args.path2:
-        left_dir = os.path.abspath(args.path1)
-        right_dir = os.path.abspath(args.path2)
         left_date = date1
         right_date = date2 if date2 else date1
-        mode_label = "custom"
+        if mode == "exp":
+            left_base = os.path.abspath(args.path2)
+            right_base = os.path.abspath(args.path1)
+        else:
+            if not date2:
+                print("Error: mode='date' requires --date2")
+                sys.exit(2)
+            left_base = os.path.abspath(args.path2)
+            right_base = os.path.abspath(args.path2)
+        left_dir = build_cycle_dir(left_base, netw, left_date, hh)
+        right_dir = build_cycle_dir(right_base, netw, right_date, hh)
+        mode_label = format_mode_label(mode)
     else:
         left_base, right_base, left_date, right_date = get_compare_targets(mode, netw, date1, date2)
         left_dir = build_cycle_dir(left_base, netw, left_date, hh)

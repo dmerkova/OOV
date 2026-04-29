@@ -29,7 +29,7 @@ Run examples:
 ```bash
 python comp2dirs.py gfs --date1 20260313 --hh 00 --mode exp
 python comp2dirs.py gdas --date1 20260312 --date2 20260313 --hh 00 --mode date
-python comp2dirs.py gdas --path1 /path/to/left_dir --path2 /path/to/right_dir --hh 00
+python comp2dirs.py gdas --path1 /path/to/base1 --path2 /path/to/base2 --date1 20260313 --hh 00 --mode exp
 python comp2prepbs.py rap_p --date1 20260313 --hh 06 --tm 00 --mode exp
 ```
 
