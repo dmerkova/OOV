@@ -20,6 +20,7 @@ Usage examples:
   python comp2prepbs.py gdas --date1 20260313 --hh 00
   python comp2prepbs.py rap_p --date1 20260313 --hh 06 --tm 00
   python comp2prepbs.py gdas --date1 20260312 --date2 20260313 --mode date --hh 00
+    python comp2prepbs.py gdas --path1 /path/to/base1 --path2 /path/to/base2 --date1 20260313 --hh 00
 """
 
 import os
@@ -46,6 +47,8 @@ def parse_args():
     parser.add_argument("network", help="Network name, e.g. gdas, gfs, cdas, rap_p")
     parser.add_argument("--date1", default=today_yyyymmdd(), help="Left date YYYYMMDD (default: today)")
     parser.add_argument("--date2", default=None, help="Right date YYYYMMDD")
+    parser.add_argument("--path1", default=None, help="Override config path1 base directory")
+    parser.add_argument("--path2", default=None, help="Override config path2 base directory")
     parser.add_argument("--hh", default=None, help="Cycle HH")
     parser.add_argument("--tm", default=None, help="TM value, if relevant for network")
     parser.add_argument(
@@ -147,6 +150,10 @@ def build_diff_table(left_df, right_df):
 def main():
     args = parse_args()
 
+    if bool(args.path1) ^ bool(args.path2):
+        print("Error: --path1 and --path2 must be provided together.")
+        sys.exit(2)
+
     netw = args.network
     date1 = args.date1
     date2 = args.date2
@@ -154,7 +161,20 @@ def main():
     hh = resolve_hh(netw, args.hh)
     tm = resolve_tm(args.tm)
 
-    left_base, right_base, left_date, right_date = get_compare_targets(mode, netw, date1, date2)
+    if args.path1 and args.path2:
+        left_date = date1
+        right_date = date2 if date2 else date1
+        if mode == "exp":
+            left_base = os.path.abspath(args.path2)
+            right_base = os.path.abspath(args.path1)
+        else:
+            if not date2:
+                print("Error: mode='date' requires --date2")
+                sys.exit(2)
+            left_base = os.path.abspath(args.path2)
+            right_base = os.path.abspath(args.path2)
+    else:
+        left_base, right_base, left_date, right_date = get_compare_targets(mode, netw, date1, date2)
 
     left_file = build_prepbufr_path(left_base, netw, left_date, hh, tm)
     right_file = build_prepbufr_path(right_base, netw, right_date, hh, tm)
