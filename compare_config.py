@@ -19,7 +19,7 @@ class CompareConfig:
 
     # Optional alternate path
     #path2: str = "/lfs/h1/ops/para/com/obsproc/v1.2"
-    path2: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v127/com/obsproc/v1.3.0"
+    path2: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v130/com/obsproc/v5.0"
     path1: str = "/lfs/h1/ops/prod/com/obsproc/v1.2"
 
     default_hh: str = "00"

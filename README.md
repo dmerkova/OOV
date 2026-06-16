@@ -16,22 +16,16 @@ Observation Output Verification tools to compare 2 different versions of obsproc
 - `mode=exp`: compare 2 different experiments
 - `mode=date`: compare 2 different dates
 
-### Usage
+### Usage  Load Python first:
 
-Load Python first:
-
-```bash
 module load python
-```
 
-Run examples:
+#Run examples:
 
-```bash
 python comp2dirs.py gfs --date1 20260313 --hh 00 --mode exp
 python comp2dirs.py gdas --date1 20260312 --date2 20260313 --hh 00 --mode date
 python comp2dirs.py gdas --path1 /path/to/base1 --path2 /path/to/base2 --date1 20260313 --hh 00 --mode exp
 python comp2prepbs.py rap_p --date1 20260313 --hh 06 --tm 00 --mode exp
-```
 
 NOTE for CDAS: special treatment for CDAS due to the fact that user exp 
 is saved mostly on `ptmp` instead of `stmp` due to time restrictions. 
