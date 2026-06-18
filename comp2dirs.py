@@ -29,6 +29,7 @@ Usage examples:
 import os
 import sys
 import argparse
+from datetime import datetime
 import pandas as pd
 from tabulate import tabulate
 
@@ -62,7 +63,7 @@ def parse_args():
 
 def get_files_and_sizes(directory, netw, hh_filter=None, tm_filter=None):
     """
-    Recursively list all files with sizes.
+    Recursively list all files with sizes and modification times.
     If hh_filter is given, keep only files matching netw.tHHz* OR upa_*.
     """
     if not os.path.exists(directory):
@@ -85,9 +86,13 @@ def get_files_and_sizes(directory, netw, hh_filter=None, tm_filter=None):
 
             full_path = os.path.join(root, file)
             relative_path = os.path.relpath(full_path, directory)
-            file_dict[relative_path] = os.path.getsize(full_path)
+            file_dict[relative_path] = {
+                "size": os.path.getsize(full_path),
+                "mtime": datetime.fromtimestamp(os.path.getmtime(full_path)),
+            }
 
     return file_dict
+
 
 def count_files(directory, netw, HH_filter=None, tm_filter=None):
     """Count occurrences of .listing, .nr, .bufr_d, prepbufr, twin, unblock, and total files."""
@@ -105,14 +110,11 @@ def count_files(directory, netw, HH_filter=None, tm_filter=None):
         "total": 0
     }
 
-    #files = os.listdir(directory)
     files = []
     for root, _, filelist in os.walk(directory):
         files.extend(filelist)
     
     for f in files:
-
-        # Apply HH filter if requested
         if HH_filter:
             if not (f.startswith(f"{netw}.t{HH_filter}z") or f.startswith("upa_")):
                 continue
@@ -139,9 +141,27 @@ def count_files(directory, netw, HH_filter=None, tm_filter=None):
     return file_counts
 
 
+def _format_mtime(value):
+    if value == "N/A":
+        return "N/A"
+    return value.strftime("%Y-%m-%d %H:%M:%S")
+
+
+def _time_diff_str(left_time, right_time):
+    if left_time == "N/A" or right_time == "N/A":
+        return "N/A"
+    diff = right_time - left_time
+    total_seconds = int(diff.total_seconds())
+    sign = "" if total_seconds >= 0 else "-"
+    total_seconds = abs(total_seconds)
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{sign}{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+
 def compare_directories(left_dir, right_dir, netw, hh_filter=None, tm_filter=None):
     """
-    Compare file names and sizes between two directories.
+    Compare file names, sizes, and modification times between two directories.
     """
     if not os.path.exists(left_dir):
         print(f"Error: left directory does not exist: {left_dir}")
@@ -154,13 +174,17 @@ def compare_directories(left_dir, right_dir, netw, hh_filter=None, tm_filter=Non
     left_files = get_files_and_sizes(left_dir, netw, hh_filter, tm_filter)
     right_files = get_files_and_sizes(right_dir, netw, hh_filter, tm_filter)
     
-# Add debug prints at key points
     table_data = []
     all_files = left_files.keys() | right_files.keys()
 
     for file in all_files:
-        size1 = left_files.get(file, "N/A")
-        size2 = right_files.get(file, "N/A")
+        left = left_files.get(file, None)
+        right = right_files.get(file, None)
+
+        size1 = left["size"] if left else "N/A"
+        size2 = right["size"] if right else "N/A"
+        time1 = _format_mtime(left["mtime"]) if left else "N/A"
+        time2 = _format_mtime(right["mtime"]) if right else "N/A"
 
         if size1 == "N/A":
             status = "Only in right"
@@ -179,15 +203,20 @@ def compare_directories(left_dir, right_dir, netw, hh_filter=None, tm_filter=Non
             size_diff = abs(size1 - size2)
             rel_size_diff = f"{(size_diff / size1) * 100:.2f}%" if size1 != 0 else "100%"
 
-        table_data.append([file, size1, size2, size_diff, rel_size_diff, status])
+        time_diff = _time_diff_str(left["mtime"] if left else "N/A", right["mtime"] if right else "N/A")
+
+        table_data.append([file, size1, size2, size_diff, rel_size_diff, status, time1, time2, time_diff])
 
     columns = [
         "File",
-        "Size in left (bytes)",
-        "Size in right (bytes)",
-        "Size Difference (bytes)",
-        "Relative Size Difference (%)",
+        "Size L (bytes)",
+        "Size R (bytes)",
+        "Size Diff (bytes)",
+        "Diff(%)",
         "Status",
+        "Time L",
+        "Time R",
+        "Time Diff",
     ]
 
     if not table_data:
@@ -203,7 +232,7 @@ def compare_directories(left_dir, right_dir, netw, hh_filter=None, tm_filter=Non
         table_data,
         headers=columns,
         tablefmt="pretty",
-        colalign=("left", "right", "right", "right", "right", "left")
+        colalign=("left", "right", "right", "right", "right", "left", "left", "left", "left")
     ))
 
     return df
@@ -244,28 +273,18 @@ def main():
         right_dir = build_cycle_dir(right_base, netw, right_date, hh)
         mode_label = format_mode_label(mode)
 
-    # If user omitted HH and network does not force it, compare all files.
-    # For gdas/gfs: HH is in directory path (/HH/atmos/), NOT in filename
-    # For others: HH is in filename (nam.t00z*, rap.t00z*), so need filename filter
     if args.hh is not None:
-        # User explicitly specified HH
         hh_filter = hh if netw not in ["gdas", "gfs"] else None
     elif netw in ["gdas", "gfs"]:
-        # HH already in directory structure, don't filter filenames
         hh_filter = None
     else:
-        # Other networks: filter by filename
         hh_filter = hh if hh is not None else None
 
-    # TM filter should only be applied when user explicitly provides --tm.
-    # Default TM is for naming/metadata, not for filtering directory comparisons.
     if args.tm is not None:
         tm_filter = tm if netw not in ["gdas", "gfs"] else None
     else:
         tm_filter = None
 
-    # gdas/gfs keep HH in directory path, so hh_filter is intentionally None.
-    # Use cycle HH for reporting/output naming in that case.
     display_hh = hh if netw in ["gdas", "gfs"] else (hh_filter if hh_filter else "ALL")
     tm_relevant = netw not in ["gdas", "gfs"]
     hh_part = str(display_hh).lower() if display_hh != "ALL" else "all"
@@ -283,8 +302,7 @@ def main():
     if tm_relevant:
         print(f"tm       : {tm_filter if tm_filter else 'ALL'}")
 
-
-    df_compare = compare_directories(left_dir, right_dir, netw, hh_filter,tm_filter)
+    df_compare = compare_directories(left_dir, right_dir, netw, hh_filter, tm_filter)
 
     left_counts = count_files(left_dir, netw, hh_filter, tm_filter)
     right_counts = count_files(right_dir, netw, hh_filter, tm_filter)
@@ -319,7 +337,6 @@ def main():
 
     df_compare.to_csv(output_csv, index=False)
     
-
     with open(output_csv, "a") as f:
         f.write("\n")
         f.write("Directory Info\n")
