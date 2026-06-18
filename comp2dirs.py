@@ -205,7 +205,7 @@ def compare_directories(left_dir, right_dir, netw, hh_filter=None, tm_filter=Non
 
         time_diff = _time_diff_str(left["mtime"] if left else "N/A", right["mtime"] if right else "N/A")
 
-        table_data.append([file, size1, size2, size_diff, rel_size_diff, time1, time2, time_diff, status])
+        table_data.append([file, size1, size2, size_diff, rel_size_diff, status, time1, time2, time_diff])
 
     columns = [
         "File",
@@ -213,10 +213,10 @@ def compare_directories(left_dir, right_dir, netw, hh_filter=None, tm_filter=Non
         "Size R (bytes)",
         "Size Diff (bytes)",
         "Diff(%)",
+        "Status",
         "Time L",
         "Time R",
         "Time Diff",
-        "Status",
     ]
 
     if not table_data:
