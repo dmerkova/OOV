@@ -209,13 +209,13 @@ def compare_directories(left_dir, right_dir, netw, hh_filter=None, tm_filter=Non
 
     columns = [
         "File",
-        "Size in left (bytes)",
-        "Size in right (bytes)",
-        "Size Difference (bytes)",
+        "Size L (bytes)",
+        "Size R (bytes)",
+        "Size Diff (bytes)",
         "Diff(%)",
-        "Time in left",
-        "Time in right",
-        "Time Difference",
+        "Time L",
+        "Time R",
+        "Time Diff",
         "Status",
     ]
 
