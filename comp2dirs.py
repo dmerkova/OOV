@@ -212,7 +212,7 @@ def compare_directories(left_dir, right_dir, netw, hh_filter=None, tm_filter=Non
         "Size in left (bytes)",
         "Size in right (bytes)",
         "Size Difference (bytes)",
-        "Relative Size Difference (%)",
+        "Diff(%)",
         "Time in left",
         "Time in right",
         "Time Difference",
