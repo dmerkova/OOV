@@ -34,7 +34,7 @@ import pandas as pd
 from tabulate import tabulate
 
 from compare_utils import (
-    today_yyyymmdd,
+    today_yyyymmdd(),
     get_compare_targets,
     build_cycle_dir,
     resolve_hh,
@@ -62,10 +62,6 @@ def parse_args():
 
 
 def get_files_and_sizes(directory, netw, hh_filter=None, tm_filter=None):
-    """
-    Recursively list all files with sizes and modification times.
-    If hh_filter is given, keep only files matching netw.tHHz* OR upa_*.
-    """
     if not os.path.exists(directory):
         print(f"Warning: Directory does not exist: {directory}")
         return {}
@@ -95,8 +91,6 @@ def get_files_and_sizes(directory, netw, hh_filter=None, tm_filter=None):
 
 
 def count_files(directory, netw, HH_filter=None, tm_filter=None):
-    """Count occurrences of .listing, .nr, .bufr_d, prepbufr, twin, unblock, and total files."""
-
     if not os.path.exists(directory):
         return {"listing": 0, "nr": 0, "bufr_d": 0, "prepbufr": 0, "twin": 0, "total": 0}
 
@@ -159,10 +153,11 @@ def _time_diff_str(left_time, right_time):
     return f"{sign}{hours:02d}:{minutes:02d}:{seconds:02d}"
 
 
+def _red(text):
+    return f"\033[31m{text}\033[0m"
+
+
 def compare_directories(left_dir, right_dir, netw, hh_filter=None, tm_filter=None):
-    """
-    Compare file names, sizes, and modification times between two directories.
-    """
     if not os.path.exists(left_dir):
         print(f"Error: left directory does not exist: {left_dir}")
         sys.exit(1)
@@ -204,36 +199,22 @@ def compare_directories(left_dir, right_dir, netw, hh_filter=None, tm_filter=Non
             rel_size_diff = f"{(size_diff / size1) * 100:.2f}%" if size1 != 0 else "100%"
 
         time_diff = _time_diff_str(left["mtime"] if left else "N/A", right["mtime"] if right else "N/A")
-
         table_data.append([file, size1, size2, size_diff, rel_size_diff, status, time1, time2, time_diff])
 
-    columns = [
-        "File",
-        "Size L (bytes)",
-        "Size R (bytes)",
-        "Size Diff (bytes)",
-        "Diff(%)",
-        "Status",
-        "Time L",
-        "Time R",
-        "Time Diff",
-    ]
+    columns = ["File", "Size L (bytes)", "Size R (bytes)", "Size Diff (bytes)", "Diff(%)", "Status", "Time L", "Time R", "Time Diff"]
 
     if not table_data:
         print("No matching files found for requested selection.")
         return pd.DataFrame(columns=columns)
 
     table_data.sort(key=lambda x: x[0])
-
     df = pd.DataFrame(table_data, columns=columns)
 
     print("\nDetailed file comparison:")
-    print(tabulate(
-        table_data,
-        headers=columns,
-        tablefmt="pretty",
-        colalign=("left", "right", "right", "right", "right", "left", "left", "left", "left")
-    ))
+    for row in table_data:
+        if str(row[5]).startswith("Only in "):
+            row = [_red(str(v)) if i == 0 or i == 5 else v for i, v in enumerate(row)]
+        print(row)
 
     return df
 
@@ -317,29 +298,11 @@ def main():
         ["Unblok Files", left_counts["unblok"], right_counts["unblok"]],
         ["TOTAL Files", left_counts["total"], right_counts["total"]],
     ]
-    print(tabulate(
-        counts_rows,
-        headers=["File Type", "Count in left", "Count in right"],
-        tablefmt="pretty",
-        colalign=("left", "right", "right")
-    ))
-
-    print("\nComparing directories:")
-    print(f"left_dir : {left_dir}")
-    print(f"right_dir: {right_dir}")
-    print(f"mode     : {mode_label}")
-    print(f"network  : {netw}")
-    print(f"date1    : {left_date}")
-    print(f"date2    : {right_date}")
-    print(f"hh       : {display_hh}")
-    if tm_relevant:
-        print(f"tm       : {tm_filter if tm_filter else 'ALL'}")
+    print(tabulate(counts_rows, headers=["File Type", "Count in left", "Count in right"], tablefmt="pretty", colalign=("left", "right", "right")))
 
     df_compare.to_csv(output_csv, index=False)
-    
     with open(output_csv, "a") as f:
-        f.write("\n")
-        f.write("Directory Info\n")
+        f.write("\nDirectory Info\n")
         f.write(f"left_dir,{left_dir}\n")
         f.write(f"right_dir,{right_dir}\n")
         f.write(f"mode,{mode_label}\n")
@@ -351,12 +314,7 @@ def main():
             f.write(f"tm,{tm_filter if tm_filter else 'ALL'}\n")
         f.write("\n")
 
-    df_counts = pd.DataFrame(
-        counts_rows,
-        columns=["File Type", "Count in left", "Count in right"]
-    )
-    df_counts.to_csv(output_csv, mode="a", index=False)
-
+    pd.DataFrame(counts_rows, columns=["File Type", "Count in left", "Count in right"]).to_csv(output_csv, mode="a", index=False)
     print(f"\nSaved: {output_csv}")
 
 
