@@ -1,8 +1,16 @@
 # OOV
 
-Observation Output Verification tools to compare 2 different versions of obsproc runs.
+# Observation Output Verification tools to compare 2 different versions of obsproc runs.
 
 ## Update (2026-03-13)
+
+# to run full fly of models (selected gfs, gdas, nam, rap and cdas (1 day early due delay) 
+#   ./run_obsproc_comparisons.sh
+#   ./run_obsproc_comparisons.sh 06
+#   ./run_obsproc_comparisons.sh 12 20260922
+# will create tar file 
+# send it to email:
+
 
 ### New files
 

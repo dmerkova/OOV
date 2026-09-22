@@ -18,8 +18,10 @@ class CompareConfig:
     #path1: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v127/com/obsproc/v1.3.0"
 
     # Optional alternate path
-    #path2: str = "/lfs/h1/ops/para/com/obsproc/v1.2"
-    path2: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v130/com/obsproc/v5.0"
+    path2: str = "/lfs/h1/ops/para/com/obsproc/v1.3"
+    #path2: str = "/lfs/h2/emc/stmp/dagmar.merkova/CRON/v130/com/obsproc/v5.0"
+    #path2: str = "/lfs/h2/emc/stmp/iliana.genkova/CRON/G/com/obsproc/v5.0"
+    #path2: str = "/lfs/h2/emc/stmp/iliana.genkova/CRON/GFS17/com/obsproc/v5.0"
     path1: str = "/lfs/h1/ops/prod/com/obsproc/v1.2"
 
     default_hh: str = "00"
@@ -55,9 +57,10 @@ NETWORK_RULES = {
     },
     "cdas": {
         "has_atmos": False,
-        "prepbufr_has_tm": True,
+        "prepbufr_has_tm": False,
         "force_hh": None,
-        #"path2": "/lfs/h2/emc/ptmp/dagmar.merkova/CRON/v129/com/obsproc/v5.0",
+        #"path2": "/lfs/h2/emc/ptmp/dagmar.merkova/CRON/v130/com/obsproc/v5.0",
+        "path2": "/lfs/h1/ops/para/com/obsproc/v1.3",
         "note": "CDAS may require manual PTMP adjustment if testing local files.",
     },
     "rap": {
